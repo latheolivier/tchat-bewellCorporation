@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Bewell</title>
+</head>
+
+
+
+<link rel="shortcut icon" href="téléchargement.png">
+
+
+
+<link rel="stylesheet" href="./fichier/bootstrap.min.css">
+<link rel="stylesheet" href="./fichier/font-awesome.min.css">
+
+<script src="./fichier/bootstrap.bundle.min.js"></script>
+<script src="./fichier/jquery.min.js"></script>
+
+<script src="./js/helper.js"></script>
+<script src="./js/sweetalert.min.js"></script>
+
+
+
+<body>
+
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #fc4a1a;
+            background: -webkit-linear-gradient(to right, #1d1d1d, #1d1d1d);
+            background: linear-gradient(to right, #1d1d1d, #1d1d1d)
+        }
+
+        .card {
+            border-radius: 10px;
+            padding: 35px 26px;
+            width: 400px
+        }
+
+        .abt {
+            font-size: 14px
+        }
+
+        .inputbox {
+            margin-top: 12px;
+            position: relative
+        }
+
+        .inputbox input {
+            border: 2px solid #eee;
+            padding: 0 10px
+        }
+
+        .inputbox input:focus {
+            color: #495057;
+            background-color: #fff;
+            border-color: none;
+            outline: 0;
+            box-shadow: none;
+            border: 2px solid #0d6efd
+        }
+
+        .input-tag {
+            position: absolute;
+            top: 27px;
+            left: 7px;
+            width: 32px
+        }
+
+        .proceed button {
+            height: 50px;
+            font-size: 15px
+        }
+
+        .form-check-label {
+            font-size: 12px
+        }
+
+        .btn-primary:focus {
+            color: #fff;
+            background-color: #025ce2;
+            border-color: #0257d5;
+            box-shadow: none
+        }
+
+        .form-check-input {
+            width: 16px;
+            height: 16px;
+            margin-top: 6px
+        }
+
+
+
+
+
+
+
+        /* ############################## */
+    </style>
+
+
+
+
+    <div class="card">
+
+        <center>
+            <div id="my_spinner" style="display: none;" class="spinner-border mb-1" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </center>
+
+
+
+        <div class="text-center">
+            <h3>Créer un compte</h3>
+            <span class="abt">Vous avez déjà un compte? <a href="#" id="btn_login">S'identifier</a></span>
+        </div>
+        <div class="form mt-3">
+
+
+
+            <div class="inputbox">
+                <input type="text" id="le_pseudo" class="form-control" placeholder="Nom d'utilisateur">
+            </div>
+
+            <div class="inputbox">
+                <input type="password" id="mdp_1" class="form-control" placeholder="Mot de passe">
+            </div>
+
+            <div class="inputbox">
+                <input type="password" id="mdp_2" class="form-control" placeholder="Confirmer mot de passe">
+            </div>
+
+
+
+
+            <label class="d-flex justify-content-center" for="image" style="margin-top: 20px;text-align: center;">
+                <!-- <img id="image-preview" src="https://via.placeholder.com/400" style="width:200px; height: 200px;"
+                    class="rounded rounded-circle" alt="placeholder"> -->
+                <img id="image-preview" src="./user_male_circle_30px.png" style="width:200px; height: 200px;"
+                    class="rounded rounded-circle" alt="placeholder">
+            </label>
+
+            <input type="file" id="image" style="display: none;" name="image" class="form-control" accept="image/*"
+                onchange="updatePreview(this, 'image-preview')">
+
+
+
+
+
+        </div>
+        <div class="mt-4 proceed">
+            <button style="background-color: #FFC600 !important;border: 1px solid #FFC600; color: black;"
+                id="btn_create" class="btn btn-primary btn-block  align-items-center">
+                <div class=""> <span>S'inscrire</span> </div>
+            </button> </div>
+
+    </div>
+
+
+
+    <script>
+        function updatePreview(input, target) {
+            let file = input.files[0];
+
+
+
+            let reader = new FileReader();
+
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                let img = document.getElementById(target);
+                // can also use "this.result"
+                img.src = reader.result;
+            }
+        }
+
+
+
+
+
+
+
+        document.getElementById('btn_create').addEventListener('click', function (e) {
+            e.preventDefault()
+
+
+            let image = document.getElementById('image').value.trim();
+
+            let le_pseudo = document.getElementById('le_pseudo').value.trim()
+            let mdp_1 = document.getElementById('mdp_1').value.trim()
+            let mdp_2 = document.getElementById('mdp_2').value.trim()
+
+            if (le_pseudo == "" || mdp_1 == '' || mdp_2 == '') {
+                swal({
+                    title: "erreur",
+                    text: "Tous les champs sont obligatoire",
+                    icon: "error",
+                    button: "D'accord",
+                    closeOnClickOutside: false,
+                    dangerMode: true,
+                });
+            } else {
+                if (mdp_1 == mdp_2) {
+
+                    document.getElementById('my_spinner').style.display = 'block'
+
+                    let les_donnees = new FormData()
+
+                    if (image == "") {
+
+
+                        les_donnees.append('pseudo', le_pseudo)
+                        les_donnees.append('mot_de_passe', mdp_1)
+                        les_donnees.append('image', '')
+
+                        fetch(URL + '/creer_compte', {
+                                method: 'POST',
+                                body: les_donnees,
+                                headers: {
+                                    Accept: "application/json",
+
+                                }
+                            }).then(response => response.json())
+                            .then(response => {
+
+                                //   afficher donne modifier
+                                document.getElementById('my_spinner').style.display = 'none'
+
+                                if (response.resultat == "save") {
+
+                                    window.localStorage.setItem('id_chat_user_bewell', le_pseudo)
+                                    window.localStorage.setItem('theme_chat_user_bewell', 0)
+
+
+
+                                    document.location.href = 'index.html'
+
+                                } else if (response.resultat == "user_found") {
+
+                                    swal({
+                                        title: "erreur",
+                                        text: "Le nom d'utilisateur existe déjà",
+                                        icon: "warning",
+                                        button: "D'accord",
+                                        closeOnClickOutside: false,
+                                        dangerMode: true,
+                                    });
+
+                                } else {
+                                    swal({
+                                        title: "erreur",
+                                        text: "Une erreur 's'est produit réessayer s'il vous plait",
+                                        icon: "warning",
+                                        button: "D'accord",
+                                        closeOnClickOutside: false,
+                                        dangerMode: true,
+                                    });
+                                }
+
+                            })
+                            .catch((error) => {
+                                document.getElementById('my_spinner').style.display = 'none'
+                                swal({
+                                    title: "erreur",
+                                    text: "Une erreur 's'est produit réessayer s'il vous plait",
+                                    icon: "warning",
+                                    button: "D'accord",
+                                    closeOnClickOutside: false,
+                                    dangerMode: true,
+                                });
+                                // console.log(error)
+                                // loader(false)
+                                error_internet()
+                            });
+                    }
+                    // ###############################################
+                    // ###############################################
+                    else {
+
+                        let le_fichier = document.getElementById('image').files[0]
+                        let nom_image = le_fichier.name;
+                        let extenssion_image = nom_image.split('.').pop().toLowerCase();
+                        if (jQuery.inArray(extenssion_image, ['jpeg', 'jpg', 'png', , 'gif']) == -1) {
+
+                            swal({
+                                title: "Erreur image",
+                                text: "Le format de l'image est incorrecte",
+                                icon: "error",
+                                button: "Ok",
+                            });
+
+
+                        } else {
+
+                            les_donnees.append('pseudo', le_pseudo)
+                            les_donnees.append('mot_de_passe', mdp_1)
+                            les_donnees.append('image', le_fichier)
+
+
+
+                            fetch(URL + '/creer_compte', {
+                                    method: 'POST',
+                                    body: les_donnees,
+                                    headers: {
+                                        Accept: "application/json",
+
+                                    }
+                                }).then(response => response.json())
+                                .then(response => {
+
+                                    document.getElementById('my_spinner').style.display = 'none'
+
+                                    if (response.resultat == "save") {
+
+                                        window.localStorage.setItem('id_chat_user_bewell', le_pseudo)
+                                        window.localStorage.setItem('theme_chat_user_bewell', 0)
+                                        document.location.href = 'index.html'
+
+                                    } else if (response.resultat == "user_found") {
+
+                                        swal({
+                                            title: "erreur",
+                                            text: "Le nom d'utilisateur existe déjà",
+                                            icon: "warning",
+                                            button: "D'accord",
+                                            closeOnClickOutside: false,
+                                            dangerMode: true,
+                                        });
+
+                                    } else {
+                                        swal({
+                                            title: "erreur",
+                                            text: "Une erreur 's'est produit réessayer s'il vous plait",
+                                            icon: "warning",
+                                            button: "D'accord",
+                                            closeOnClickOutside: false,
+                                            dangerMode: true,
+                                        });
+                                    }
+
+                                })
+                                .catch((error) => {
+                                    document.getElementById('my_spinner').style.display = 'none'
+
+                                    swal({
+                                        title: "erreur",
+                                        text: "Une erreur 's'est produit réessayer s'il vous plait",
+                                        icon: "warning",
+                                        button: "D'accord",
+                                        closeOnClickOutside: false,
+                                        dangerMode: true,
+                                    });
+                                    // console.log(error)
+                                    // loader(false)
+                                    error_internet()
+                                });
+                        }
+                    }
+
+
+
+
+
+                } else {
+                    swal({
+                        title: "erreur",
+                        text: "Le mot de passe n'est pas identique",
+                        icon: "warning",
+                        button: "D'accord",
+                        closeOnClickOutside: false,
+                        dangerMode: true,
+                    });
+                }
+
+            }
+
+
+
+
+
+
+
+
+
+        })
+
+
+        document.getElementById('btn_login').addEventListener('click', function (e) {
+            e.preventDefault()
+            document.location.href = 'index.html'
+        })
+    </script>
+
+
+</body>
+
+</html>
